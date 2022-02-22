@@ -32,12 +32,8 @@
         <td  th:text="${user.lastName}" />
         <td  th:text="${user.age}" />
         <td>
-<!--            <a href="/edit/${user.id}">edit</a>-->
             <a href="/edit" th:href="@{/edit(id=${user.id})}">edit</a>
-<!--            <form th:action="@{/delete(id=${user.id})}" method="GET">-->
-<!--                <input type="submit" th:value="'Delete'" />-->
             <a href="/delete" th:href="@{/delete(id=${user.id})}">delete</a>
-<!--            </form>-->
         </td>
     </tr>
     </tbody>

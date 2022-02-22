@@ -1,54 +1,65 @@
 package ru.kata.spring.boot_security.demo.dataseed;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.dao.RoleDao;
+import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.repo.RoleRepository;
-import ru.kata.spring.boot_security.demo.repo.UserRepository;
 import ru.kata.spring.boot_security.demo.model.User;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Component
+@Transactional
 public class UserDataLoader implements CommandLineRunner {
-    @Autowired
-    UserRepository userRepository;
+    private UserDao userDao;
+    private RoleDao roleDao;
 
-    @Autowired
-    RoleRepository roleRepository;
+    public UserDataLoader(UserDao userDao, RoleDao roleDao) {
+        this.userDao = userDao;
+        this.roleDao = roleDao;
+    }
 
     @Override
     public void run(String... args) throws Exception {
         loadUserData();
     }
-
     private void loadUserData() {
-        if (roleRepository.count() == 0) {
+        if (roleDao.getAll().isEmpty()) {
             Role role1 = new Role();
             role1.setName("ROLE_ADMIN");
             Role role2 = new Role();
             role2.setName("ROLE_USER");
-            roleRepository.save(role1);
-            roleRepository.save(role2);
+            roleDao.add(role1);
+            roleDao.add(role2);
         }
 
-        if (userRepository.count() == 0) {
+        if (userDao.getAllUsers().isEmpty()) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String password = "admin";
             String encodePass = passwordEncoder.encode(password);
-            System.out.println(encodePass);
+            //System.out.println(encodePass);
 
             User user1 = new User("admin", encodePass, "Alexander", "Martynets", 18);
             Set<Role> roles = user1.getRoles();//new HashSet<>();
-            Role role = roleRepository.findByName("ROLE_ADMIN");
-            roles.add(role);
+            Role role1 = roleDao.getByName("ROLE_ADMIN");
+            roles.add(role1);
+            Role role2 = roleDao.getByName("ROLE_USER");
+            roles.add(role2);
             user1.setRoles(roles);
-            userRepository.save(user1);
-        }
+            userDao.add(user1);
 
-        System.out.println(userRepository.count());
+            String password2 = "user";
+            String encodePass2 = passwordEncoder.encode(password2);
+            //System.out.println(encodePass);
+
+            User user2 = new User("user", encodePass2, "Timur", "Bro", 18);
+            Set<Role> roles2 = user2.getRoles();//new HashSet<>();
+            roles2.add(role2);
+            user2.setRoles(roles2);
+            userDao.add(user2);
+        }
     }
 }

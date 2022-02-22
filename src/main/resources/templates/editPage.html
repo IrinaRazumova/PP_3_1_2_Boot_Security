@@ -30,10 +30,13 @@
          <td>Role</td>
         <td>:</td>
         <td>
-            <th:block th:each="role: ${listRoles}">
-                <input type="checkbox" th:field="*{roles}"
-                       th:text="${role.name}" th:value="${role.id}" />
-            </th:block>
+            <ul>
+                <li th:each="role : ${listRoles}">
+                    <input type="checkbox" th:field="*{roles}" th:value="${role}" />
+                    <label th:for="${#ids.prev('roles')}"
+                           th:text="${role}"></label>
+                </li>
+            </ul>
         </td>
         <tr>
             <td>Name</td>
